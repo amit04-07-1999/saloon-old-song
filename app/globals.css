@@ -40,12 +40,13 @@ button, input { font: inherit; }
 .controls .play { width: 38px; height: 38px; border-color: rgba(255,255,255,.7); color: #1a1514; background: linear-gradient(145deg, #fffaf0, #e7cfaa); box-shadow: 0 5px 20px rgba(0,0,0,.3), inset 0 1px #fff; opacity: 1; }
 .controls .play:hover { background: linear-gradient(145deg, #fff, #f0d5a8); }
 .controls .play img { width: 15px; height: 15px; filter: brightness(0) saturate(100%) invert(10%) sepia(13%) saturate(1294%) hue-rotate(338deg) brightness(93%); }
-.volume-control { width: 126px; height: 16px; display: flex; align-items: center; justify-content: center; gap: 7px; }
+.volume-control { width: 142px; height: 16px; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .volume-control button { width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 0; color: #e8d4b2; background: transparent; cursor: pointer; opacity: .85; }
 .volume-control button:hover { opacity: 1; }
 .volume-control button img { width: 16px; height: 16px; filter: brightness(0) saturate(100%) invert(89%) sepia(18%) saturate(505%) hue-rotate(350deg) brightness(98%); }
 .volume-control input { width: 94px; height: 3px; appearance: none; border-radius: 8px; outline: none; background: linear-gradient(to right, #d9a759 var(--volume), rgba(255,255,255,.18) var(--volume)); cursor: pointer; }
 .volume-control input::-webkit-slider-thumb { width: 9px; height: 9px; appearance: none; border-radius: 50%; background: #f7e8ce; box-shadow: 0 1px 5px rgba(0,0,0,.45); }
+.volume-value { width: 28px; color: #d8c9b1; font-size: 9px; font-variant-numeric: tabular-nums; text-align: right; }
 .progress-wrap { grid-column: 1 / -1; margin-top: 7px; }
 .progress-wrap input { width: 100%; height: 4px; display: block; appearance: none; border-radius: 10px; outline: none; background: linear-gradient(to right, #d9a759 var(--progress), rgba(255,255,255,.18) var(--progress)); cursor: pointer; }
 .progress-wrap input::-webkit-slider-thumb { width: 10px; height: 10px; appearance: none; border-radius: 50%; background: #fff; opacity: 0; }
@@ -80,8 +81,8 @@ button, input { font: inherit; }
   .controls { gap: 3px; }
   .controls button { width: 24px; height: 24px; }
   .controls .play { width: 32px; height: 32px; }
-  .volume-control { width: 100px; }
-  .volume-control input { width: 72px; height: 3px; }
+  .volume-control { width: 112px; }
+  .volume-control input { width: 58px; height: 3px; }
   .hint { display: none; }
   .rating-widget { right: 12px; bottom: 12px; }
   .rating-toggle { min-width: 92px; height: 38px; padding: 0 11px; }

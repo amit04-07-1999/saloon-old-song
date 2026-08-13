@@ -13,7 +13,7 @@ export default function Home() {
   const [trackIndex, setTrackIndex] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.75);
+  const [volume, setVolume] = useState(0.9);
   const [muted, setMuted] = useState(false);
   const [ratingOpen, setRatingOpen] = useState(false);
   const [rating, setRating] = useState(0);
@@ -67,15 +67,9 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const savedVolume = Number(localStorage.getItem("amit-salon-volume"));
-    if (Number.isFinite(savedVolume) && savedVolume >= 0 && savedVolume <= 1) setVolume(savedVolume);
-  }, []);
-
-  useEffect(() => {
     if (!audioRef.current) return;
     audioRef.current.volume = volume;
     audioRef.current.muted = muted;
-    localStorage.setItem("amit-salon-volume", String(volume));
   }, [volume, muted]);
 
   useEffect(() => {
@@ -214,6 +208,7 @@ export default function Home() {
               onChange={(event) => { setVolume(Number(event.target.value)); setMuted(false); }}
               style={{ "--volume": `${(muted ? 0 : volume) * 100}%` }}
             />
+            <span className="volume-value">{Math.round((muted ? 0 : volume) * 100)}%</span>
           </div>
         </div>
         <div className="progress-wrap">
@@ -243,3 +238,4 @@ export default function Home() {
     </main>
   );
 }
+
