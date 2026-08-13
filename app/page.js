@@ -49,13 +49,17 @@ export default function Home() {
 
   const submitRating = async (value) => {
     const visitorId = localStorage.getItem("amit-salon-visitor");
+    const ua = navigator.userAgent;
+    const platform = navigator.userAgentData?.platform || navigator.platform || "Unknown";
+    const browser = ua.includes("Edg/") ? "Edge" : ua.includes("Chrome/") ? "Chrome" : ua.includes("Firefox/") ? "Firefox" : ua.includes("Safari/") ? "Safari" : "Browser";
+    const device = /Android/i.test(ua) ? "Android Phone" : /iPhone/i.test(ua) ? "iPhone" : /iPad/i.test(ua) ? "iPad" : /Windows/i.test(ua) ? "Windows PC" : /Macintosh/i.test(ua) ? "Mac" : /Linux/i.test(ua) ? "Linux PC" : "Unknown Device";
     setRating(value);
     setRatingStatus("Saving...");
     try {
       const response = await fetch("/api/ratings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ visitorId, rating: value }),
+        body: JSON.stringify({ visitorId, rating: value, deviceName: `${device} · ${browser}`, browser, platform }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error();
@@ -218,8 +222,7 @@ export default function Home() {
       </section>
       <aside className={`rating-widget ${ratingOpen ? "open" : ""}`}>
         <button className="rating-toggle" onClick={() => setRatingOpen((value) => !value)} aria-expanded={ratingOpen} aria-label="Rate Amit's Salon">
-          <span>★</span><strong>{ratingSummary.average || "Rate us"}</strong>
-          {ratingSummary.count > 0 && <small>({ratingSummary.count})</small>}
+          <span>★</span><strong>Rate us</strong>
         </button>
         <div className="rating-panel">
           <button className="rating-close" onClick={() => setRatingOpen(false)} aria-label="Close rating">×</button>
@@ -230,7 +233,6 @@ export default function Home() {
               <button key={value} onMouseEnter={() => setHoverRating(value)} onClick={() => submitRating(value)} aria-label={`${value} star`} className={value <= (hoverRating || rating) ? "active" : ""}>★</button>
             ))}
           </div>
-          <span className="rating-result">{ratingSummary.average ? `${ratingSummary.average}/5 · ${ratingSummary.count} reviews` : "पहली rating दें"}</span>
           {ratingStatus && <span className="rating-status">{ratingStatus}</span>}
         </div>
       </aside>
@@ -238,4 +240,3 @@ export default function Home() {
     </main>
   );
 }
-

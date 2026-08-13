@@ -46,7 +46,7 @@ export async function POST(request) {
   let submitted;
   try {
     submitted = await request.json();
-    const { visitorId, rating } = submitted;
+    const { visitorId, rating, deviceName, browser, platform } = submitted;
     const value = Number(rating);
     if (!visitorId || visitorId.length > 100 || !Number.isInteger(value) || value < 1 || value > 5) {
       return NextResponse.json({ error: "Invalid rating" }, { status: 400 });
@@ -56,7 +56,16 @@ export async function POST(request) {
     const now = new Date();
     await ratings.updateOne(
       { visitorId },
-      { $set: { rating: value, updatedAt: now }, $setOnInsert: { createdAt: now } },
+      {
+        $set: {
+          rating: value,
+          updatedAt: now,
+          deviceName: String(deviceName || "Unknown Device").slice(0, 80),
+          browser: String(browser || "Unknown Browser").slice(0, 50),
+          platform: String(platform || "Unknown Platform").slice(0, 50),
+        },
+        $setOnInsert: { createdAt: now },
+      },
       { upsert: true },
     );
     return NextResponse.json({ ...(await getSummary(ratings)), userRating: value });
