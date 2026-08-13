@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "../../../lib/mongodb";
+import { localVisitorStats } from "../../../lib/local-store";
 
 export const dynamic = "force-dynamic";
 const ONLINE_WINDOW = 45 * 1000;
@@ -18,7 +19,7 @@ async function getStats(visits) {
     visits.countDocuments({ lastSeen: { $gte: cutoff } }),
     visits.countDocuments(),
   ]);
-  return { online, total, visited: Math.max(total - online, 0) };
+  return { online, total, visited: total };
 }
 
 export async function GET() {
@@ -28,13 +29,16 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Visitor stats error:", error);
+    if (process.env.NODE_ENV === "development") return NextResponse.json(localVisitorStats());
     return NextResponse.json({ error: "Stats unavailable" }, { status: 500 });
   }
 }
 
 export async function POST(request) {
+  let submitted;
   try {
-    const { sessionId, visitorId } = await request.json();
+    submitted = await request.json();
+    const { sessionId, visitorId, deviceName, browser, platform } = submitted;
     if (!sessionId || !visitorId || sessionId.length > 100 || visitorId.length > 100) {
       return NextResponse.json({ error: "Invalid visitor session" }, { status: 400 });
     }
@@ -45,7 +49,14 @@ export async function POST(request) {
       { sessionId },
       {
         $set: { lastSeen: now },
-        $setOnInsert: { sessionId, visitorId, firstSeen: now },
+        $setOnInsert: {
+          sessionId,
+          visitorId,
+          firstSeen: now,
+          deviceName: String(deviceName || "Unknown Device").slice(0, 80),
+          browser: String(browser || "Unknown Browser").slice(0, 50),
+          platform: String(platform || "Unknown Platform").slice(0, 50),
+        },
       },
       { upsert: true },
     );
@@ -55,6 +66,7 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error("Visitor heartbeat error:", error);
+    if (process.env.NODE_ENV === "development") return NextResponse.json(localVisitorStats(submitted?.sessionId, submitted?.visitorId));
     return NextResponse.json({ error: "Heartbeat failed" }, { status: 500 });
   }
 }

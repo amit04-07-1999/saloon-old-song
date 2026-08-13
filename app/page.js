@@ -15,6 +15,11 @@ export default function Home() {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.75);
   const [muted, setMuted] = useState(false);
+  const [ratingOpen, setRatingOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [ratingSummary, setRatingSummary] = useState({ average: 0, count: 0 });
+  const [ratingStatus, setRatingStatus] = useState("");
   const [now, setNow] = useState("");
   const [visitors, setVisitors] = useState({ online: 0, visited: 0 });
   const audioRef = useRef(null);
@@ -27,6 +32,39 @@ export default function Home() {
       .then((songs) => { setTracks(songs); setTrackIndex(0); })
       .catch(() => setTracks([]));
   }, []);
+
+  useEffect(() => {
+    let visitorId = localStorage.getItem("amit-salon-visitor");
+    if (!visitorId) { visitorId = crypto.randomUUID(); localStorage.setItem("amit-salon-visitor", visitorId); }
+    fetch(`/api/ratings?visitorId=${encodeURIComponent(visitorId)}`, { cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.error) {
+          setRating(data.userRating || 0);
+          setRatingSummary({ average: data.average, count: data.count });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const submitRating = async (value) => {
+    const visitorId = localStorage.getItem("amit-salon-visitor");
+    setRating(value);
+    setRatingStatus("Saving...");
+    try {
+      const response = await fetch("/api/ratings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visitorId, rating: value }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error();
+      setRatingSummary({ average: data.average, count: data.count });
+      setRatingStatus("Thank you!");
+    } catch {
+      setRatingStatus("Could not save");
+    }
+  };
 
   useEffect(() => {
     const savedVolume = Number(localStorage.getItem("amit-salon-volume"));
@@ -53,6 +91,14 @@ export default function Home() {
     };
     const visitorId = getId(localStorage, "amit-salon-visitor");
     const sessionId = getId(sessionStorage, "amit-salon-session");
+    const getDeviceInfo = () => {
+      const ua = navigator.userAgent;
+      const platform = navigator.userAgentData?.platform || navigator.platform || "Unknown";
+      const browser = ua.includes("Edg/") ? "Edge" : ua.includes("Chrome/") ? "Chrome" : ua.includes("Firefox/") ? "Firefox" : ua.includes("Safari/") ? "Safari" : "Browser";
+      const device = /Android/i.test(ua) ? "Android Phone" : /iPhone/i.test(ua) ? "iPhone" : /iPad/i.test(ua) ? "iPad" : /Windows/i.test(ua) ? "Windows PC" : /Macintosh/i.test(ua) ? "Mac" : /Linux/i.test(ua) ? "Linux PC" : "Unknown Device";
+      return { deviceName: `${device} · ${browser}`, browser, platform };
+    };
+    const deviceInfo = getDeviceInfo();
 
     const heartbeat = async () => {
       if (document.visibilityState === "hidden") return;
@@ -60,7 +106,7 @@ export default function Home() {
         const response = await fetch("/api/visitors", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ visitorId, sessionId }),
+          body: JSON.stringify({ visitorId, sessionId, ...deviceInfo }),
           cache: "no-store",
         });
         if (response.ok) {
@@ -175,6 +221,24 @@ export default function Home() {
           <div><span>{formatTime(elapsed)}</span><span>{formatTime(duration)}</span></div>
         </div>
       </section>
+      <aside className={`rating-widget ${ratingOpen ? "open" : ""}`}>
+        <button className="rating-toggle" onClick={() => setRatingOpen((value) => !value)} aria-expanded={ratingOpen} aria-label="Rate Amit's Salon">
+          <span>★</span><strong>{ratingSummary.average || "Rate us"}</strong>
+          {ratingSummary.count > 0 && <small>({ratingSummary.count})</small>}
+        </button>
+        <div className="rating-panel">
+          <button className="rating-close" onClick={() => setRatingOpen(false)} aria-label="Close rating">×</button>
+          <strong>आपका अनुभव कैसा रहा?</strong>
+          <span className="rating-copy">5 में से स्टार दें</span>
+          <div className="stars" onMouseLeave={() => setHoverRating(0)}>
+            {[1, 2, 3, 4, 5].map((value) => (
+              <button key={value} onMouseEnter={() => setHoverRating(value)} onClick={() => submitRating(value)} aria-label={`${value} star`} className={value <= (hoverRating || rating) ? "active" : ""}>★</button>
+            ))}
+          </div>
+          <span className="rating-result">{ratingSummary.average ? `${ratingSummary.average}/5 · ${ratingSummary.count} reviews` : "पहली rating दें"}</span>
+          {ratingStatus && <span className="rating-status">{ratingStatus}</span>}
+        </div>
+      </aside>
       <p className="hint">बाल छोटे हों या बड़े — आपकी पसंद, हमारी कला</p>
     </main>
   );

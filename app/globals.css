@@ -52,6 +52,21 @@ button, input { font: inherit; }
 .progress-wrap input:hover::-webkit-slider-thumb { opacity: 1; }
 .progress-wrap div { display: flex; justify-content: space-between; margin-top: 7px; color: #a7a3a1; font-size: 9px; }
 .hint { position: absolute; z-index: 3; bottom: 12px; left: 50%; margin: 0; transform: translateX(-50%); color: rgba(255,255,255,.68); font-family: Hind, sans-serif; font-size: 12px; letter-spacing: .08em; }
+.rating-widget { position: fixed; z-index: 7; right: 22px; bottom: 22px; }
+.rating-toggle { min-width: 104px; height: 42px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 0 14px; border: 1px solid rgba(224,178,99,.38); border-radius: 99px; color: #fff3dc; background: rgba(31,18,11,.93); box-shadow: 0 10px 30px rgba(0,0,0,.4); backdrop-filter: blur(14px); cursor: pointer; }
+.rating-toggle > span { color: #f3bd55; font-size: 20px; }
+.rating-toggle strong { font-size: 12px; }
+.rating-toggle small { color: #baa98e; font-size: 10px; }
+.rating-panel { position: absolute; right: 0; bottom: 52px; width: 250px; display: flex; visibility: hidden; opacity: 0; transform: translateY(8px) scale(.97); flex-direction: column; align-items: center; gap: 7px; padding: 20px 18px 17px; border: 1px solid rgba(224,178,99,.3); border-radius: 18px; background: linear-gradient(145deg, rgba(54,31,18,.98), rgba(17,11,9,.99)); box-shadow: 0 20px 50px rgba(0,0,0,.55); transition: .2s ease; }
+.rating-widget.open .rating-panel { visibility: visible; opacity: 1; transform: translateY(0) scale(1); }
+.rating-close { position: absolute; top: 7px; right: 9px; width: 26px; height: 26px; border: 0; color: #cbbba2; background: transparent; font-size: 22px; cursor: pointer; }
+.rating-panel > strong { font-family: Hind, sans-serif; font-size: 17px; }
+.rating-copy, .rating-result { color: #b9ad9b; font-size: 11px; }
+.stars { display: flex; gap: 5px; }
+.stars button { padding: 0; border: 0; color: rgba(255,255,255,.22); background: transparent; font-size: 30px; line-height: 1; cursor: pointer; transition: color .15s ease, transform .15s ease; }
+.stars button.active { color: #f3bd55; text-shadow: 0 0 14px rgba(243,189,85,.35); }
+.stars button:hover { transform: scale(1.12); }
+.rating-status { min-height: 12px; color: #e6c98e; font-size: 10px; }
 
 @media (max-width: 640px) {
   .salon-photo { background-size: cover; background-repeat: no-repeat; background-position: center top; }
@@ -68,4 +83,7 @@ button, input { font: inherit; }
   .volume-control { width: 100px; }
   .volume-control input { width: 72px; height: 3px; }
   .hint { display: none; }
+  .rating-widget { right: 12px; bottom: 12px; }
+  .rating-toggle { min-width: 92px; height: 38px; padding: 0 11px; }
+  .rating-panel { width: 230px; bottom: 47px; }
 }
